@@ -13,7 +13,7 @@ class Checkout extends Model
 
     // Các trường dữ liệu có thể được gán
     protected $fillable = [
-        'user_id', 'total_price'
+        'user_id', 'total_price', 'orderstatus_id', 'phone', 'address'
     ];
 
 
@@ -22,5 +22,8 @@ class Checkout extends Model
     } 
     public function user() {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    public function status() {
+        return $this->belongsTo(OrdeStatus::class, 'orderstatus_id', 'id');
     }
 }

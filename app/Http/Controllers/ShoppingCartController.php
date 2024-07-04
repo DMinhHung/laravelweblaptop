@@ -18,6 +18,8 @@ class ShoppingCartController extends Controller
     {
         $cartItems = ShoppingCart::with('product', 'user')->get();
 
+        $numberOfItemsInCart = $cartItems->count();
+
         return response()->json($cartItems);
     }
     public function addToCart(Request $request)
@@ -30,7 +32,7 @@ class ShoppingCartController extends Controller
 
         $productId = $request->input('productId');
         $userId = $request->input('userId');
-
+        Log::info($userId);
         $existingCartItem = ShoppingCart::where('user_id', $userId)
             ->where('products_id', $productId)
             ->first();
@@ -86,9 +88,9 @@ class ShoppingCartController extends Controller
 
     public function checkout(Request $request)
     {
+        Log::info($request->all());
         $userId = $request->input('user_id');
 
-        // Kiểm tra xem userId có tồn tại và hợp lệ không
         if (!$userId || !User::find($userId)) {
             return response()->json(['message' => 'Invalid user ID'], 400);
         }
@@ -98,12 +100,20 @@ class ShoppingCartController extends Controller
         }
         $totalPrice = $cartItems->sum('total_price');
         $orderCode = Str::lower(Str::random(9));
-
+        $checkoutphone = $request->input('phone');
+        $checkoutaddress = $request->input('address');
+        Log::info($checkoutphone);
+        Log::info($checkoutaddress);
+        // dd();
         $order = Checkout::create([
             'user_id' => $userId,
             'total_price' => $totalPrice,
+            'orderstatus_id' => 1,
+            'phone' => $checkoutphone,
+            'address' => $checkoutaddress,
         ]);
-        // Thêm các sản phẩm từ giỏ hàng vào order_items
+ 
+
         foreach ($cartItems as $cartItem) {
             Order::create([
                 'code' => $orderCode,
@@ -113,7 +123,8 @@ class ShoppingCartController extends Controller
                 'total_price' => $cartItem->total_price,
             ]);
         }
-        // Xóa giỏ hàng sau khi tạo đơn hàng
+
+
         ShoppingCart::where('user_id', $userId)->delete();
         
         return response()->json(['message' => 'Order placed successfully', 'order_id' => $order->id], 200);

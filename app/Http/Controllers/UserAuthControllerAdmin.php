@@ -2,44 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AuthAdmin;
-use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserAuthControllerAdmin extends Controller
 {
-    public function userLogin(Request $request)
+    public function adminLogin(Request $request)
     {
         $loginUserData = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|min:8'
         ]);
 
-        if (!Auth::attempt($loginUserData)) {
+        if (!Auth::guard('admin')->attempt($loginUserData)) {
             return response()->json([
                 'message' => 'Invalid Credentials'
             ], 401);
         }
 
-        $user = $request->user();
+        $user = Auth::guard('admin')->user();
         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+
         return response()->json([
             'user' => $user,
             'access_token' => $token,
         ]);
     }
 
-    public function userRegister(Request $request)
+    public function adminRegister(Request $request)
     {
         $registerUserData = $request->validate([
             'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
+            'email' => 'required|string|email|unique:admins',
             'password' => 'required|min:4'
         ]);
 
-        $user = AuthAdmin::create([
+        $user = Admin::create([
             'name' => $registerUserData['name'],
             'email' => $registerUserData['email'],
             'role' => 'admin',
@@ -47,14 +47,14 @@ class UserAuthControllerAdmin extends Controller
         ]);
 
         return response()->json([
-            'message' => 'User Created ',
+            'message' => 'Admin Created',
             'user' => $user,
         ]);
     }
 
-    public function userlogout(Request $request)
-    {
 
+    public function adminlogout(Request $request)
+    {
         $user = $request->user();
 
         if ($user) {

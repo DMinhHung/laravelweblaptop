@@ -16,7 +16,7 @@ class ProductAdminController extends Controller
     // Hiển thị danh sách sản phẩm dưới dạng API
     public function index()
     {
-        $products = Product::all();
+        $products = Product::with('details')->get();
         return response()->json($products);
     }
 
@@ -89,7 +89,6 @@ class ProductAdminController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::with('details')->findOrFail($id);
-        // $currentImages = json_decode($product->img, true) ?? [];
         $newImages = [];
         foreach ($request->img as $key => $img) {
             if ($img instanceof \Illuminate\Http\UploadedFile) {

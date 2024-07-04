@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AuthAdmin extends Model
+class Customers extends Model
 {
     use HasFactory;
 
-    protected $table = 'admin';
+    protected $table = 'customers';
 
-    // Các trường dữ liệu có thể được gán
     protected $fillable = [
-        'name', 'email', 'role', 'password'
+        'name', 'img', 'gender', 'email', 'phone', 'address'
     ];
 }
